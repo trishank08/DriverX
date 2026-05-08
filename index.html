@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DriveX</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar transparent" id="navbar">
+    <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" aria-label="Open Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="nav-logo">
+      DriveX
+      <span>established 2026</span>
+    </div>
+
+    <button class="dealer-btn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      Find a Dealer
+    </button>
+  </nav>
+
+  <!-- ============ FULLSCREEN MENU OVERLAY ============ -->
+  <div class="menu-overlay" id="menuOverlay" onclick="handleOverlayClick(event)">
+    <div class="menu-bg"></div>
+
+    <div class="menu-panel" id="menuPanel">
+      <p class="menu-label">Navigation</p>
+
+      <div class="menu-items">
+        <div class="menu-item" onclick="toggleMenu()">Models</div>
+        <div class="menu-item" onclick="toggleMenu()">Bespoke</div>
+        <div class="menu-item" onclick="toggleMenu()">Ownership</div>
+        <div class="menu-item" onclick="toggleMenu()">Boutique</div>
+      </div>
+
+      <div class="menu-footer">
+        <p> DriveX  &mdash; House of Excellence</p>
+        <p>+91 6266666666</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HERO SECTION ============ -->
+  <section class="hero">
+    <div class="hero-bg" id="heroBg" style="background-image: url('https://wallpapercave.com/wp/wp8703088.jpg'); background-size: cover; background-position: center;"></div>
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <p class="hero-eyebrow">Beyond Generation</p>
+      <h1 class="hero-title">OBSIDIAN</h1>
+      <p class="hero-subtitle">Where silence becomes a statement</p>
+      <!-- Add this inside your .hero-content, after .hero-subtitle -->
+<p id="hero-price" style="display:none; font-size:0.7rem; letter-spacing:0.3em; color:rgba(255,255,255,0.35); font-weight:300; margin-bottom:1.5rem;"></p>
+
+      <div class="hero-buttons">
+        <button class="btn-premium">Discover Now</button>
+        <button class="btn-premium btn-outline">Configure</button>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <span class="scroll-label">SCROLL</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ============ MODELS SECTION ============ -->
+  <section class="models-section fade-in">
+    <p class="section-label">Our Collection</p>
+    <div class="deco-line"></div>
+    <h2 class="section-title">The Motor Cars</h2>
+    <p class="section-body">
+      Each motor car a unique expression — handcrafted over thousands
+      of hours by master artisans at Goodwood.
+    </p>
+
+    <div class="models-grid">
+
+      <!-- Card 1 — your link 1 (wallpaperaccess) -->
+      <div class="model-card fade-in">
+        <img src="https://wallpaperaccess.com/full/4079873.jpg" alt="Supercar 1">
+        <div class="model-card-overlay">
+          <p class="model-name">Lamborghini</p>
+          <p class="model-tag">Aventador</p>
+        </div>
+        <div class="model-arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 7l10 10M17 7v10H7"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 2 — your link 2 (wallpapercave) -->
+      <div class="model-card fade-in fade-in-delay-1">
+        <img src="https://wallpapercave.com/wp/wp6631940.jpg" alt="Supercar 2">
+        <div class="model-card-overlay">
+          <p class="model-name">Lamborghini Huracán</p>
+          <p class="model-tag">Post Opulence</p>
+        </div>
+        <div class="model-arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 7l10 10M17 7v10H7"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 3 — your link 3 (4kwallpapers) -->
+      <div class="model-card fade-in fade-in-delay-2">
+        <img src="https://4kwallpapers.com/images/walls/thumbs_2t/22101.jpg" alt="Supercar 3">
+        <div class="model-card-overlay">
+          <p class="model-name">Audi R8</p>
+          <p class="model-tag">Grand Touring</p>
+        </div>
+        <div class="model-arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 7l10 10M17 7v10H7"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ SPECTRE FEATURE SECTION ============ -->
+  <section class="spectre-section">
+    <div class="spectre-bg"></div>
+    <div class="spectre-content fade-in">
+      <p class="spectre-sub">Engine: V12</p>
+      <h2 class="spectre-title"> Aventador</h2>
+      <p class="spectre-sub">The Pinnacle of Naturally Aspirated Power</p>
+      <p class="spectre-desc">
+        A statement of raw power. V12 dominance unleashed.  
+0–60 mph in 2.9 seconds. Pure, untamed performance.
+      </p>
+      <button class="btn-premium">Explore Spectre</button>
+    </div>
+  </section>
+
+  <!-- ============ GALLERY STRIP ============ -->
+  <div class="gallery-strip">
+    <div class="strip-track" id="stripTrack">
+      <div class="strip-item"><img src="https://wallpaperaccess.com/full/4079873.jpg" alt="Supercar 1"></div>
+      <div class="strip-item"><img src="https://wallpapercave.com/wp/wp6631940.jpg" alt="Supercar 2"></div>
+      <div class="strip-item"><img src="https://4kwallpapers.com/images/walls/thumbs_2t/22101.jpg" alt="Supercar 3"></div>
+      <div class="strip-item"><img src="https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=400&q=80" alt="Supercar 4"></div>
+      <div class="strip-item"><img src="https://images.unsplash.com/photo-1563720223185-11003d516935?w=400&q=80" alt="Supercar 5"></div>
+      <div class="strip-item"><img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&q=80" alt="Supercar 6"></div>
+      <!-- Duplicated for seamless infinite loop -->
+      <div class="strip-item"><img src="https://wallpaperaccess.com/full/4079873.jpg" alt="Supercar 1"></div>
+      <div class="strip-item"><img src="https://wallpapercave.com/wp/wp6631940.jpg" alt="Supercar 2"></div>
+      <div class="strip-item"><img src="https://4kwallpapers.com/images/walls/thumbs_2t/22101.jpg" alt="Supercar 3"></div>
+      <div class="strip-item"><img src="https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=400&q=80" alt="Supercar 4"></div>
+      <div class="strip-item"><img src="https://images.unsplash.com/photo-1563720223185-11003d516935?w=400&q=80" alt="Supercar 5"></div>
+      <div class="strip-item"><img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&q=80" alt="Supercar 6"></div>
+    </div>
+  </div>
+
+  <!-- ============ BESPOKE SECTION ============ -->
+  <section class="bespoke-section fade-in">
+    <div class="bespoke-img fade-in">
+      <img src="https://wallpapercave.com/wp/wp6631940.jpg" alt="Bespoke Supercar">
+    </div>
+
+    <div class="bespoke-text fade-in fade-in-delay-2">
+      <p class="section-label">Bespoke</p>
+      <div class="deco-line"></div>
+      <h2 class="section-title">Crafted for<br><em>You Alone</em></h2>
+      <p class="section-body">
+        Every Regulus motor car is a canvas for your vision. Our Bespoke
+        team of dedicated craftspeople work with you to create a motor car
+        that is entirely, exclusively yours.
+      </p>
+
+      <div class="stat-row">
+        <div class="stat-item">
+          <div class="stat-num">44,000+</div>
+          <div class="stat-label">Colour possibilities</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">800 hrs</div>
+          <div class="stat-label">Handcrafted time</div>
+        </div>
+      </div>
+
+      <button class="btn-premium btn-outline">Commission Yours</button>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="footer-grid">
+
+      <div class="footer-col-brand">
+        <p class="footer-brand">DriveX</p>
+        <p class="footer-tagline">
+          Dedicated to those who appreciate that a motor car
+          can be more than the sum of its parts.
+        </p>
+      </div>
+
+      <div>
+        <p class="footer-heading">Models</p>
+        <a class="footer-link">Lamborghini</a>
+        <a class="footer-link">Audi R8</a>
+        <a class="footer-link">Wraith</a>
+        <a class="footer-link">Dawn</a>
+        <a class="footer-link">Spectre</a>
+        <a class="footer-link">Cullinan</a>
+      </div>
+
+      <div>
+        <p class="footer-heading">Company</p>
+        <a class="footer-link">About DriveX</a>
+        <a class="footer-link">The Bespoke Team</a>
+        <a class="footer-link">Ownership</a>
+        <a class="footer-link">Boutique</a>
+        <a class="footer-link">Careers</a>
+      </div>
+
+      <div>
+        <p class="footer-heading">Legal</p>
+        <a class="footer-link">Privacy Policy</a>
+        <a class="footer-link">Cookie Policy</a>
+        <a class="footer-link">Terms of Use</a>
+        <a class="footer-link">Accessibility</a>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-legal">
+        &copy; 2026 DriveX Motorcars Limited. All rights reserved.
+      </p>
+      <div class="social-icons">
+        <div class="social-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+        </div>
+        <div class="social-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1
+              A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0
+              20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+          </svg>
+        </div>
+        <div class="social-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4
+              s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29
+              29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20
+              s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29
+              29 0 0 0-.46-5.58z"/>
+            <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"
+              fill="rgba(255,255,255,0.4)" stroke="none"/>
+          </svg>
+        </div>
+        <div class="social-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2
+              2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+            <rect x="2" y="9" width="4" height="12"/>
+            <circle cx="4" cy="4" r="2"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
