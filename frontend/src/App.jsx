@@ -1,36 +1,114 @@
-import { useState } from 'react';
-import Navbar      from './components/Navbar';
-import MenuOverlay from './components/MenuOverlay';
-import Hero        from './components/Hero';
-import ModelsGrid  from './components/ModelsGrid';
-import Newsletter  from './components/Newsletter';
-import Footer      from './components/Footer';
-import './index.css';
+import { useEffect, useMemo, useState } from 'react'
+import { ArrowRight, CarFront, ChevronDown, CircleUserRound, Heart, Menu, Search, SlidersHorizontal, Sparkles, Star, X } from 'lucide-react'
+import CarCard from './components/CarCard'
+import CompareDrawer from './components/CompareDrawer'
+import CompareModal from './components/CompareModal'
+import CarDetails from './components/CarDetails'
+import { emergencyCarPhoto, fallbackCars, formatPrice } from './data/cars'
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+const bodyTypes = ['All', 'SUV', 'Sedan', 'XUV', 'MUV']
+const brands = ['All brands', 'Maruti Suzuki', 'Hyundai', 'Tata', 'Mahindra', 'Kia', 'Toyota', 'Honda', 'Skoda', 'Volkswagen', 'MG', 'BMW', 'Mercedes-Benz', 'Audi', 'Renault', 'Nissan']
 
 function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [cars, setCars] = useState(fallbackCars)
+  const [query, setQuery] = useState('')
+  const [type, setType] = useState('All')
+  const [brand, setBrand] = useState('All brands')
+  const [maxPrice, setMaxPrice] = useState(70)
+  const [saved, setSaved] = useState([])
+  const [compareCars, setCompareCars] = useState([])
+  const [showCompare, setShowCompare] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
+  const [showSaved, setShowSaved] = useState(false)
+  const [detailCar, setDetailCar] = useState(null)
+  const [visibleCount, setVisibleCount] = useState(9)
+  const [showAuth, setShowAuth] = useState(false)
+  const [mobileMenu, setMobileMenu] = useState(false)
+  const [toast, setToast] = useState('')
+  const [user, setUser] = useState(null)
 
-  return (
-    <>
-      <Navbar
-        onMenuClick={() => setMenuOpen(prev => !prev)}
-        menuOpen={menuOpen}
-      />
+  useEffect(() => {
+    fetch(`${API}/cars`).then(r => r.ok ? r.json() : Promise.reject()).then(data => data.cars?.length === fallbackCars.length && setCars(data.cars)).catch(() => {})
+    fetch(`${API}/auth/me`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject()).then(data => setUser(data.user)).catch(() => {})
+  }, [])
+  useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(''), 2800); return () => clearTimeout(timer) }, [toast])
 
-      <MenuOverlay
-        isOpen={menuOpen}
-        onClose={() => setMenuOpen(false)}
-      />
+  const filtered = useMemo(() => cars.filter(car => {
+    const term = `${car.brand} ${car.model} ${car.type}`.toLowerCase()
+    return term.includes(query.toLowerCase()) && (type === 'All' || car.type === type) && (brand === 'All brands' || car.brand === brand) && car.price <= maxPrice * 100000
+  }), [cars, query, type, brand, maxPrice])
+  const visibleCars = filtered.slice(0, visibleCount)
+  const trending = cars.filter(c => c.trending).slice(0, 4)
+  const savedCars = useMemo(() => cars.filter(car => saved.includes(car.id)), [cars, saved])
+  const toggleSaved = (id) => setSaved(previous => {
+    const isAlreadySaved = previous.includes(id)
+    const car = cars.find(item => item.id === id)
+    setToast(isAlreadySaved ? `${car?.brand || 'Car'} removed from saved cars` : `${car?.brand || 'Car'} saved to your shortlist`)
+    return isAlreadySaved ? previous.filter(carId => carId !== id) : [...previous, id]
+  })
+  const toggleCompare = (car) => setCompareCars(previous => {
+    if (previous.some(item => item.id === car.id)) return previous.filter(item => item.id !== car.id)
+    if (previous.length >= 4) { setToast('You can compare up to 4 cars at once.'); return previous }
+    setToast(`${car.brand} ${car.model} added to comparison`); return [...previous, car]
+  })
+  const scrollToBrowse = () => document.querySelector('#browse')?.scrollIntoView({ behavior: 'smooth' })
+  const findMyCar = () => { window.location.hash = 'browse'; setTimeout(() => document.querySelector('#browse-search')?.focus(), 450) }
 
-      <main>
-        <Hero />
-        <ModelsGrid />
-        <Newsletter />
-      </main>
+  return <main className="min-h-screen overflow-x-hidden bg-paper">
+    <header className="sticky top-0 z-40 border-b border-black/5 bg-paper/85 backdrop-blur-xl"><div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 lg:px-10"><a href="#top" className="flex items-center gap-2"><span className="grid h-10 w-10 place-items-center rounded-xl bg-ink text-lime"><CarFront size={22} /></span><span className="text-xl font-extrabold tracking-tight">drive<span className="text-black/35">X</span></span></a><nav className="hidden items-center gap-8 text-sm font-bold lg:flex"><a href="#browse" className="hover:text-black/55">Explore cars</a><button onClick={() => compareCars.length ? setShowCompare(true) : setToast('Select cars to start comparing.')} className="hover:text-black/55">Compare <span className="ml-1 rounded-full bg-lime px-2 py-0.5 text-xs">{compareCars.length}</span></button><a href="#why" className="hover:text-black/55">Why DriveX</a></nav><div className="hidden items-center gap-2 sm:flex"><button onClick={findMyCar} className="grid h-10 w-10 place-items-center rounded-xl hover:bg-mist"><Search size={20}/></button><button onClick={() => setShowSaved(true)} aria-label="View saved cars" className="relative grid h-10 w-10 place-items-center rounded-xl hover:bg-mist"><Heart size={20}/>{saved.length > 0 && <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-lime text-[10px] font-black">{saved.length}</span>}</button><button onClick={() => setShowAuth(true)} title={user ? user.name : 'Sign in'} className="grid h-10 min-w-10 place-items-center rounded-xl bg-ink px-2 text-white"><>{user ? <span className="text-xs font-extrabold">{user.name.slice(0, 1).toUpperCase()}</span> : <CircleUserRound size={20}/>}</></button></div><button onClick={() => setMobileMenu(!mobileMenu)} className="grid h-10 w-10 place-items-center rounded-xl bg-mist lg:hidden"><Menu /></button></div>{mobileMenu && <div className="border-t border-black/5 bg-paper px-5 py-4 lg:hidden"><div className="flex flex-col gap-3 text-sm font-bold"><a href="#browse" onClick={() => setMobileMenu(false)}>Explore cars</a><button className="text-left" onClick={() => { setMobileMenu(false); compareCars.length ? setShowCompare(true) : setToast('Select cars to start comparing.') }}>Compare cars ({compareCars.length})</button><button className="text-left" onClick={() => { setMobileMenu(false); setShowSaved(true) }}>Saved cars ({saved.length})</button><button className="text-left" onClick={() => { setMobileMenu(false); setShowAuth(true) }}>{user ? 'My profile' : 'Sign in'}</button><a href="#why" onClick={() => setMobileMenu(false)}>Why DriveX</a></div></div>}</header>
 
-      <Footer />
-    </>
-  );
+    <section id="top" className="grid-lines relative isolate overflow-hidden"><div className="absolute -right-36 top-0 -z-10 h-96 w-96 rounded-full bg-lime/65 blur-3xl" /><div className="absolute -left-20 bottom-0 -z-10 h-72 w-72 rounded-full bg-[#c5dafe] blur-3xl" /><div className="mx-auto grid max-w-[1440px] gap-10 px-5 pb-16 pt-14 lg:grid-cols-[1fr_.9fr] lg:px-10 lg:pb-20 lg:pt-20"><div className="min-w-0 max-w-3xl"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-2 text-xs font-extrabold uppercase tracking-[.12em]"><Sparkles size={14} className="text-[#83a51a]" /> Your smarter car search</div><h1 className="max-w-3xl text-5xl font-extrabold leading-[.98] tracking-[-.065em] sm:text-6xl lg:text-7xl">Your next car.<br/><span className="text-black/35">Made clear.</span></h1><p className="mt-6 max-w-xl text-base leading-7 text-black/60 sm:text-lg">Browse, compare and find the car that fits your life — not just a spec sheet. One simple place for every better drive.</p><div className="mt-8 flex flex-wrap gap-3"><button onClick={scrollToBrowse} className="flex items-center gap-2 rounded-2xl bg-ink px-5 py-4 text-sm font-extrabold text-white shadow-lg transition hover:-translate-y-0.5">Explore cars <ArrowRight size={17}/></button><button onClick={findMyCar} className="flex items-center gap-2 rounded-2xl border border-black/10 bg-white/80 px-5 py-4 text-sm font-extrabold transition hover:bg-lime"><SlidersHorizontal size={17}/> Find my car</button></div><div className="mt-10 flex gap-7"><div><p className="text-2xl font-extrabold">30</p><p className="text-xs font-semibold text-black/45">models to discover</p></div><div className="border-l border-black/10 pl-7"><p className="text-2xl font-extrabold">4.8<span className="text-[#83a51a]">/5</span></p><p className="text-xs font-semibold text-black/45">community score</p></div><div className="hidden border-l border-black/10 pl-7 sm:block"><p className="text-2xl font-extrabold">15</p><p className="text-xs font-semibold text-black/45">trusted brands</p></div></div></div>
+      <div className="float-in relative min-h-[360px] min-w-0 overflow-hidden rounded-[32px] bg-[#dce8f6] p-5 shadow-soft sm:min-h-[430px]"><div className="absolute left-5 top-5 z-10 rounded-2xl bg-white/80 p-4 backdrop-blur"><p className="text-xs font-bold uppercase tracking-wider text-black/45">Car of the day</p><p className="mt-1 font-extrabold">BMW X1 xDrive</p><div className="mt-2 flex items-center gap-2 text-xs font-bold"><span className="rounded-full bg-lime px-2 py-1">4.8 <Star size={10} className="inline" fill="currentColor" /></span><span>₹49.9L onwards</span></div></div><div className="absolute bottom-5 right-5 z-10 rounded-2xl bg-ink p-4 text-white shadow-lg"><p className="font-mono text-[10px] uppercase tracking-widest text-white/50">Quick compare</p><p className="mt-1 text-sm font-bold">Add up to 4 cars</p></div><img onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = emergencyCarPhoto }} className="drift absolute bottom-3 left-1/2 h-[72%] w-[120%] max-w-none -translate-x-1/2 object-cover mix-blend-multiply" src={cars.find(car => car.id === 'bmw-x1-xdrive')?.image || fallbackCars[0].image} alt="BMW X1" /></div></div></section>
+
+    <section className="mx-auto max-w-[1440px] px-5 py-10 lg:px-10"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs font-bold uppercase tracking-[.17em] text-black/45">Picked for you</p><h2 className="mt-1 text-3xl font-extrabold tracking-[-.05em]">Trending this week</h2></div><button onClick={scrollToBrowse} className="group flex items-center gap-1 text-sm font-extrabold">See all cars <ArrowRight size={16} className="transition group-hover:translate-x-1"/></button></div><div className="mt-6 flex gap-5 overflow-x-auto pb-4">{trending.map((car, index) => <div className="reveal" style={{ animationDelay: `${index * 80}ms` }} key={car.id}><CarCard car={car} isSaved={saved.includes(car.id)} isCompared={compareCars.some(x => x.id === car.id)} onSave={toggleSaved} onCompare={toggleCompare} onOpen={setDetailCar}/></div>)}</div></section>
+
+    <section id="browse" className="mx-auto max-w-[1440px] px-5 py-10 lg:px-10"><div className="rounded-[32px] bg-ink p-5 text-white sm:p-8"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div><p className="text-xs font-bold uppercase tracking-[.17em] text-lime">Explore the garage</p><h2 className="mt-1 text-3xl font-extrabold tracking-[-.05em]">Find your kind of drive</h2></div><div className="relative max-w-md flex-1"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/45" size={19}/><input id="browse-search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search make, model, or body type" className="w-full rounded-2xl border border-white/10 bg-white/10 py-3.5 pl-11 pr-4 text-sm font-semibold text-white outline-none placeholder:text-white/40 focus:border-lime" /></div></div><div className="mt-7 flex flex-wrap gap-2">{bodyTypes.map(item => <button onClick={() => setType(item)} key={item} className={`rounded-full px-4 py-2 text-sm font-bold transition ${type === item ? 'bg-lime text-ink' : 'bg-white/10 text-white/75 hover:bg-white/20'}`}>{item}</button>)}<button onClick={() => setShowFilters(true)} className="ml-auto flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white/80 hover:border-lime"><SlidersHorizontal size={16}/> More filters</button></div></div>
+      <div className="mt-8 flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-[.17em] text-black/45">{filtered.length} cars found</p><h2 className="mt-1 text-3xl font-extrabold tracking-[-.05em]">All cars</h2></div><select value={brand} onChange={e => { setBrand(e.target.value); setVisibleCount(9) }} className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-bold outline-none"><>{brands.map(option => <option key={option}>{option}</option>)}</></select></div><div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{visibleCars.map((car, index) => <div key={car.id} className="reveal" style={{ animationDelay: `${Math.min(index, 5) * 50}ms` }}><CarCard car={car} compact isSaved={saved.includes(car.id)} isCompared={compareCars.some(x => x.id === car.id)} onSave={toggleSaved} onCompare={toggleCompare} onOpen={setDetailCar}/></div>)}</div>{filtered.length > visibleCount && <div className="mt-8 flex justify-center"><button onClick={() => setVisibleCount(count => count + 9)} className="rounded-2xl bg-ink px-7 py-3.5 text-sm font-extrabold text-white">More cars <span className="ml-1 text-lime">({filtered.length - visibleCount} left)</span></button></div>}{!filtered.length && <div className="mt-6 rounded-[28px] bg-white p-12 text-center"><p className="text-xl font-extrabold">No cars match that search.</p><button className="mt-4 rounded-xl bg-lime px-4 py-2 text-sm font-bold" onClick={() => { setQuery(''); setType('All'); setBrand('All brands'); setMaxPrice(70); setVisibleCount(9) }}>Clear filters</button></div>}</section>
+
+    <section id="why" className="mx-auto max-w-[1440px] px-5 pb-20 pt-10 lg:px-10"><div className="grid gap-5 rounded-[32px] bg-[#e5ebdf] p-7 md:grid-cols-3 md:p-10"><div className="md:col-span-3"><p className="text-xs font-bold uppercase tracking-[.17em] text-black/45">A better way to choose</p><h2 className="mt-1 text-3xl font-extrabold tracking-[-.05em]">Less noise. More confident decisions.</h2></div>{[['01', 'Compare honestly', 'Place up to four cars side-by-side and spot the differences that matter.'], ['02', 'Filter your way', 'Start with your body type, your budget and your everyday needs.'], ['03', 'Keep a shortlist', 'Save the cars you love and come back when you are ready.']].map(([number, title, text]) => <div key={number} className="rounded-[24px] bg-paper p-6"><span className="font-mono text-xs text-black/40">{number}</span><h3 className="mt-8 text-xl font-extrabold">{title}</h3><p className="mt-2 text-sm leading-6 text-black/55">{text}</p></div>)}</div></section>
+
+    {showFilters && <FilterModal type={type} setType={setType} brand={brand} setBrand={setBrand} maxPrice={maxPrice} setMaxPrice={setMaxPrice} onClose={() => setShowFilters(false)} />}
+    {showSaved && <SavedCarsModal cars={savedCars} onClose={() => setShowSaved(false)} onRemove={toggleSaved} onCompare={toggleCompare} onExplore={() => { setShowSaved(false); findMyCar() }} />}
+    {detailCar && <CarDetails car={detailCar} onClose={() => setDetailCar(null)} isSaved={saved.includes(detailCar.id)} onSave={toggleSaved} onCompare={toggleCompare} />}
+    {showAuth && <AuthModal user={user} onClose={() => setShowAuth(false)} onAuthenticated={(nextUser) => { setUser(nextUser); setShowAuth(false); setToast(`Welcome${nextUser.name ? `, ${nextUser.name.split(' ')[0]}` : ''}!`) }} onLogout={() => { setUser(null); setShowAuth(false); setToast('You have been logged out.') }} />}
+    <CompareDrawer cars={compareCars} onRemove={id => setCompareCars(items => items.filter(item => item.id !== id))} onClose={() => setCompareCars([])} onCompare={() => setShowCompare(true)} />
+    {showCompare && <CompareModal cars={compareCars} onClose={() => setShowCompare(false)} />}
+    {toast && <div className="fixed right-5 top-24 z-[70] rounded-2xl bg-ink px-4 py-3 text-sm font-bold text-white shadow-xl reveal">{toast}</div>}
+  </main>
 }
 
-export default App;
+function FilterModal({ type, setType, brand, setBrand, maxPrice, setMaxPrice, onClose }) {
+  return <div className="fixed inset-0 z-[55] grid place-items-end bg-ink/45 p-0 backdrop-blur-sm sm:place-items-center sm:p-5"><div className="w-full max-w-lg rounded-t-[30px] bg-paper p-6 shadow-2xl reveal sm:rounded-[30px]"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[.17em] text-black/45">Make it yours</p><h2 className="text-2xl font-extrabold">Filter cars</h2></div><button onClick={onClose} className="grid h-10 w-10 place-items-center rounded-full bg-white"><X/></button></div><div className="mt-7"><p className="text-sm font-extrabold">Body type</p><div className="mt-3 flex flex-wrap gap-2">{bodyTypes.map(item => <button key={item} onClick={() => setType(item)} className={`rounded-full px-4 py-2 text-sm font-bold ${type === item ? 'bg-ink text-white' : 'bg-white'}`}>{item}</button>)}</div></div><div className="mt-6"><p className="text-sm font-extrabold">Brand</p><select value={brand} onChange={e => setBrand(e.target.value)} className="mt-3 w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-bold outline-none">{brands.map(item => <option key={item}>{item}</option>)}</select></div><div className="mt-6"><div className="flex justify-between"><p className="text-sm font-extrabold">Maximum budget</p><p className="text-sm font-extrabold text-[#6a8716]">₹{maxPrice}L</p></div><input type="range" min="10" max="70" step="5" value={maxPrice} onChange={e => setMaxPrice(Number(e.target.value))} className="mt-4 w-full accent-[#96ba1d]"/><div className="flex justify-between text-xs font-bold text-black/35"><span>₹10L</span><span>₹70L+</span></div></div><button onClick={onClose} className="mt-8 w-full rounded-2xl bg-lime py-4 text-sm font-extrabold">Show matching cars</button></div></div>
+}
+
+function SavedCarsModal({ cars, onClose, onRemove, onCompare, onExplore }) {
+  return <div className="fixed inset-0 z-[55] grid place-items-end bg-ink/45 p-0 backdrop-blur-sm sm:place-items-center sm:p-5"><div className="max-h-[86vh] w-full max-w-2xl overflow-hidden rounded-t-[30px] bg-paper shadow-2xl reveal sm:rounded-[30px]"><div className="flex items-center justify-between border-b border-black/10 px-6 py-5"><div><p className="text-xs font-bold uppercase tracking-[.17em] text-black/45">Your shortlist</p><h2 className="mt-1 text-2xl font-extrabold">Saved cars <span className="text-black/35">({cars.length})</span></h2></div><button onClick={onClose} className="grid h-10 w-10 place-items-center rounded-full bg-white hover:bg-lime"><X /></button></div>{cars.length ? <div className="max-h-[calc(86vh-100px)] space-y-3 overflow-y-auto p-5">{cars.map(car => <div key={car.id} className="flex min-w-0 items-center gap-3 rounded-2xl bg-white p-3"><img src={car.image} alt="" className="h-16 w-20 shrink-0 rounded-xl object-cover" /><div className="min-w-0 flex-1"><p className="text-xs font-bold uppercase tracking-wider text-black/45">{car.brand} · {car.type}</p><p className="truncate font-extrabold">{car.model}</p><p className="mt-1 text-sm font-bold">{formatPrice(car.price)} <span className="font-medium text-black/45">onwards</span></p></div><div className="flex shrink-0 gap-2"><button onClick={() => onCompare(car)} className="rounded-xl bg-mist px-3 py-2 text-xs font-extrabold hover:bg-lime">Compare</button><button onClick={() => onRemove(car.id)} aria-label={`Remove ${car.model} from saved cars`} className="grid h-9 w-9 place-items-center rounded-xl bg-mist hover:bg-red-50 hover:text-red-600"><X size={17} /></button></div></div>)}</div> : <div className="px-6 py-14 text-center"><span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-white"><Heart size={24} /></span><h3 className="mt-5 text-xl font-extrabold">Your shortlist is empty</h3><p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-black/55">Tap the heart on any car to keep it here for later.</p><button onClick={onExplore} className="mt-6 rounded-2xl bg-lime px-5 py-3 text-sm font-extrabold">Explore cars</button></div>}</div></div>
+}
+
+function AuthModal({ user, onClose, onAuthenticated, onLogout }) {
+  const [mode, setMode] = useState('login')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const submit = async (event) => {
+    event.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const body = mode === 'register' ? { name, email, password } : { email, password }
+      const response = await fetch(`${API}/auth/${mode === 'register' ? 'register' : 'login'}`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || 'Could not sign in.')
+      onAuthenticated(data.user)
+    } catch (err) { setError(err.message || 'Could not reach the server. Start the backend and try again.') } finally { setLoading(false) }
+  }
+  const logout = async () => { await fetch(`${API}/auth/logout`, { method: 'POST', credentials: 'include' }).catch(() => {}); onLogout() }
+
+  return <div className="fixed inset-0 z-[55] grid place-items-center bg-ink/45 p-5 backdrop-blur-sm"><div className="w-full max-w-md rounded-[30px] bg-paper p-6 shadow-2xl reveal"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[.17em] text-black/45">DriveX account</p><h2 className="mt-1 text-2xl font-extrabold">{user ? `Hello, ${user.name}` : mode === 'login' ? 'Welcome back' : 'Join DriveX'}</h2></div><button onClick={onClose} className="grid h-10 w-10 place-items-center rounded-full bg-white"><X /></button></div>{user ? <div className="mt-7 rounded-2xl bg-white p-5"><p className="text-sm font-bold">{user.email}</p><p className="mt-1 text-sm text-black/55">Your favourites can be saved to your account.</p><button onClick={logout} className="mt-5 rounded-xl bg-ink px-4 py-3 text-sm font-extrabold text-white">Log out</button></div> : <form onSubmit={submit} className="mt-7"><div className="flex rounded-xl bg-white p-1"><button type="button" onClick={() => setMode('login')} className={`flex-1 rounded-lg py-2 text-sm font-extrabold ${mode === 'login' ? 'bg-ink text-white' : ''}`}>Log in</button><button type="button" onClick={() => setMode('register')} className={`flex-1 rounded-lg py-2 text-sm font-extrabold ${mode === 'register' ? 'bg-ink text-white' : ''}`}>Create account</button></div>{mode === 'register' && <input required value={name} onChange={e => setName(e.target.value)} placeholder="Your name" className="mt-5 w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-black" />}<input required type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" className="mt-3 w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-black" /><input required minLength="6" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password (min. 6 characters)" className="mt-3 w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-black" />{error && <p className="mt-3 text-sm font-semibold text-red-600">{error}</p>}<button disabled={loading} className="mt-5 w-full rounded-2xl bg-lime py-4 text-sm font-extrabold disabled:opacity-60">{loading ? 'Please wait…' : mode === 'login' ? 'Log in to DriveX' : 'Create my account'}</button><p className="mt-4 text-center text-xs text-black/45">Your session is stored in a secure HTTP-only cookie.</p></form>}</div></div>
+}
+
+export default App

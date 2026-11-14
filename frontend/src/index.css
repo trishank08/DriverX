@@ -1,59 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@200;300;400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'Montserrat', sans-serif;
-  background: #0a0a0a;
-  color: #fff;
-  overflow-x: hidden;
-}
-
-::-webkit-scrollbar { width: 2px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-
-section { padding: 7rem 3rem; }
-
-.section-label {
-  font-size: 0.6rem;
-  letter-spacing: 0.45em;
-  color: rgba(255,255,255,0.3);
-  font-weight: 300;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-}
-
-.section-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  font-weight: 400;
-  color: #fff;
-  margin-bottom: 1.5rem;
-  line-height: 1.1;
-}
-
-.section-body {
-  font-size: 0.82rem;
-  font-weight: 300;
-  color: rgba(255,255,255,0.45);
-  line-height: 2;
-  max-width: 38ch;
-}
-
-.deco-line {
-  width: 40px;
-  height: 0.5px;
-  background: rgba(255,255,255,0.2);
-  margin-bottom: 2rem;
-}
-
-@media (max-width: 768px) {
-  section { padding: 5rem 1.5rem; }
-}
+body { margin: 0; min-width: 320px; background: #f6f7f4; color: #14171a; font-family: Manrope, sans-serif; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+::selection { background: #c8f04b; color: #14171a; }
+.grid-lines { background-image: linear-gradient(rgba(20,23,26,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(20,23,26,.045) 1px, transparent 1px); background-size: 44px 44px; }
+.noise { background-image: radial-gradient(rgba(255,255,255,.22) 1px, transparent 1px); background-size: 6px 6px; }
+.car-img { transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+.car-card:hover .car-img { transform: scale(1.06) rotate(-1deg); }
+.reveal { animation: reveal .55s ease both; }
+.float-in { animation: float-in .7s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes reveal { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes float-in { from { opacity: 0; transform: translateY(30px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes drift { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+.drift { animation: drift 4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
